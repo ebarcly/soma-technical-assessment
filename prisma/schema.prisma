@@ -10,5 +10,25 @@ datasource db {
 model Todo {
   id        Int      @id @default(autoincrement())
   title     String
+  dueDate   DateTime?
+  imageUrl  String?
+  imageAlt  String?
+  estimatedDuration Int?  // in days
   createdAt DateTime  @default(now())
+
+
+ // relations for dependencies
+ dependencies      TodoDependency[] @relation("DependsOn")
+  dependents        TodoDependency[] @relation("RequiredBy")
+}
+
+model TodoDependency {
+  id           Int  @id @default(autoincrement())
+  todoId       Int
+  dependsOnId  Int
+  
+  todo         Todo @relation("RequiredBy", fields: [todoId], references: [id], onDelete: Cascade)
+  dependsOn    Todo @relation("DependsOn", fields: [dependsOnId], references: [id], onDelete: Cascade)
+  
+  @@unique([todoId, dependsOnId])
 }
